@@ -1,0 +1,28 @@
+service: aws-lambda-image
+
+provider:
+  name: aws
+  runtime: python2.7
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - rekognition:DetectFaces
+        - rekognition:DetectLabels
+        - rekognition:IndexFaces
+      Resource: '*'
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+      Resource: arn:aws:s3:::${self:custom.bucketName}/*
+
+custom:
+  bucketName: aws-lambda-image-process
+
+functions:
+  lambda_handler:
+    handler: handler.lambda_handler
+    events:
+      - s3:
+          bucket: ${self:custom.bucketName}
+          event: s3:ObjectCreated:*
